@@ -37,6 +37,7 @@ public class Comet {
                 .channel(NioServerSocketChannel.class)
                 .localAddress(new InetSocketAddress(port))
                 .childOption(ChannelOption.SO_KEEPALIVE, true)
+                .childOption(ChannelOption.SO_BACKLOG, 128)
                 .childHandler(new CometInitializer());
     }
 
