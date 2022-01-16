@@ -2,6 +2,11 @@ package com.jing.server;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
+import io.netty.handler.codec.FixedLengthFrameDecoder;
+import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
+import io.netty.handler.codec.LengthFieldPrepender;
+import io.netty.handler.codec.string.StringDecoder;
+import io.netty.handler.codec.string.StringEncoder;
 import io.netty.handler.timeout.IdleStateHandler;
 
 /**
@@ -34,7 +39,15 @@ public class CometInitializer extends ChannelInitializer<Channel> {
     @Override
     protected void initChannel(Channel channel) throws Exception {
         channel.pipeline()
-                .addLast(new IdleStateHandler(this.readerIdleTimeSecond, this.writeIdleTimeSecond, this.allIdleTimeSecond));
+                .addLast(new IdleStateHandler(this.readerIdleTimeSecond, this.writeIdleTimeSecond, this.allIdleTimeSecond))
+                .addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0,4,0,4))
+                .addLast(new StringDecoder())
+                // 业务处理
+                .addLast(new ServerHandler())
+                // 解码
+                .addLast(new LengthFieldPrepender(4, false))
+                .addLast(new StringEncoder())
+                ;
     }
 }
 
